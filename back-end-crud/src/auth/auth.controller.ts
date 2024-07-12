@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body,Param, Delete, Put, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Body,Param, Delete, Put, NotFoundException, BadRequestException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { users } from '@prisma/client';
 
@@ -12,6 +12,9 @@ export class AuthController {
   }
   @Post()
   async createUsers(@Body() data:users){
+    if (!data.first_name || !data.last_name || !data.password || !data.username) {
+      throw new BadRequestException('Faltan datos necesarios en el cuerpo de la solicitud');
+    }
     return this.auth.createUsers(data)
   }
   @Get(':id')
