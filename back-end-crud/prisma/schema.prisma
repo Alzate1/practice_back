@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model book {
+  id            Int             @id @default(autoincrement())
+  name          String?         @db.VarChar(50)
+  description   String?         @db.VarChar(200)
+  image         String?         @db.VarChar(300)
+  user_id       Int?
+  created_at    DateTime?       @default(now()) @db.Timestamp(6)
+  updated_at    DateTime?       @default(now()) @db.Timestamp(6)
+  users         users?          @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  comentario    comentario[]
+  likeidontlike likeidontlike[]
+}
+
+model comentario {
+  id         Int       @id @default(autoincrement())
+  content    String?
+  user_id    Int?
+  book_id    Int?
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  book       book?     @relation(fields: [book_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users      users?    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model likeidontlike {
+  id         Int       @id @default(autoincrement())
+  user_id    Int?
+  book_id    Int?
+  likes      String?   @db.Char(1)
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at DateTime? @default(now()) @db.Timestamptz(6)
+  book       book?     @relation(fields: [book_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users      users?    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([user_id, book_id], map: "unique_likeidontlike")
+}
+
+model users {
+  id            Int             @id @default(autoincrement())
+  first_name    String?         @db.VarChar(50)
+  last_name     String?         @db.VarChar(50)
+  username      String?         @db.VarChar(50)
+  password      String?         @db.VarChar(255)
+  usertype_id   Int?
+  created_at    DateTime?       @default(now()) @db.Timestamp(6)
+  updated_at    DateTime?       @default(now()) @db.Timestamp(6)
+  state         String?         @db.Char(1)
+  book          book[]
+  comentario    comentario[]
+  likeidontlike likeidontlike[]
+  usertype      usertype?       @relation(fields: [usertype_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model usertype {
+  id         Int       @id @default(autoincrement())
+  name       String?   @db.VarChar(50)
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  updated_at DateTime? @default(now()) @db.Timestamp(6)
+  users      users[]
+}
